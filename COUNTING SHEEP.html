@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>COUNTING SHEEP</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.10.0/p5.js"></script>
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+    body {
+        background-color: black;
+    }
+    .sheep {
+        position: absolute;
+        pointer-events: auto;
+    }
+    .popup {
+        position: fixed;
+        display: none;
+        z-index: 100;
+    }
+    .popup img {
+        max-width: 100%;
+    }
+</style>
+</head>
+<body>
+
+<script>
+let sheepVideos = [];
+let sheepImages = ['pop1.png', 'pop2.png'];
+const popup = document.getElementById('popup');
+
+function setup() {
+    createCanvas(windowWidth, windowHeight);
+    background(0, 0);
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+}
+
+function draw() {
+    clear();
+}
+
+
+function showPopup(video) {
+    let randomImage = sheepImages[Math.floor(Math.random() * sheepImages.length)];
+
+    
+    let popup = document.createElement('div');
+    popup.classList.add('popup');
+    popup.innerHTML = `<img src="${randomImage}" alt="Random Image">`;
+
+    
+    let popupX = random(0, windowWidth - 300);
+    let popupY = random(0, windowHeight - 300);
+    popup.style.left = `${popupX}px`;
+    popup.style.top = `${popupY}px`;
+
+    
+    document.body.appendChild(popup);
+    popup.style.display = 'block';
+
+    
+    popup.addEventListener('click', () => {
+        popup.style.display = 'none';
+    });
+}
+
+
+function moveSheepInOneDirection(video) {
+    let directionX = random() > 0.5 ? 1 : -1;
+    let directionY = random() > 0.5 ? 1 : -1; 
+    let speed = 1;
+
+    
+    function move() {
+        let currentX = parseFloat(video.style.left);
+        let currentY = parseFloat(video.style.top);
+
+        
+        video.style.left = `${currentX + directionX * speed}px`;
+        video.style.top = `${currentY + directionY * speed}px`;
+
+        
+        if (currentX + directionX * speed < 0 || currentX + directionX * speed > windowWidth - video.width) {
+            directionX *= -1;
+        }
+        if (currentY + directionY * speed < 0 || currentY + directionY * speed > windowHeight - video.height) {
+            directionY *= -1;
+        }
+
+        
+        requestAnimationFrame(move);
+    }
+
+    move();
+}
+
+function mousePressed() {
+    let video = document.createElement('video');
+    video.src = "sheep.mp4";
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true;
+    video.className = 'sheep';
+
+    
+    let size = random(100, 400);
+    video.width = size;
+    video.height = size;
+    video.style.top = `${mouseY}px`;
+    video.style.left = `${mouseX}px`;
+
+    
+    video.addEventListener('click', (event) => {
+        event.stopPropagation();
+        showPopup(video);
+    });
+
+    
+    moveSheepInOneDirection(video);
+
+    document.body.appendChild(video);
+    sheepVideos.push(video);
+}
+
+</script>
+
+</body>
+</html>
